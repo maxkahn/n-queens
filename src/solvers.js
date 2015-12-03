@@ -18,28 +18,29 @@
 
 window.findNRooksSolution = function(n) {
 
-  var solution = undefined; //fixme
   var board = new Board({n: n});
   var rooks = n;
   var solutions = [];
+  var boardsSoFar = {}
   //this.togglePiece(rowI, colI)
   var possibleMoves = {};
-  for (var row = 0; row < n; row++) {
-    for (var column = 0; column < n; column++) {
-      possibleMoves[JSON.stringify([row, column])] = [row,column];
-    }
+  for (var column = 0; column < n; column++) {
+    possibleMoves[column] = column;
   }
   
   // for(0..<n for rows)
   //   for(0..<n for col)
   //     possible moves[]
-    var generateBoards = function(board, remainingRooks, remainingMoves){
+    var generateBoards = function(board, remainingRooks, possibleMoves){
+      var currentRow = n - remainingRooks
+      var movesLeft = _.extend({},possibleMoves);
+
       if(remainingRooks === 0) {
         //no check yet for whether board already in solutions
         solutions.push(board);
       }else{
-        for (var keys in remainingMoves) {
-          if (board.valueAt(remainingMoves[keys][0], remainingMoves[keys][1]) === 0) {
+        for (var keys in movesLeft) {
+          if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
 
             var newRows = [];
             var rows = board.rows();
@@ -49,15 +50,18 @@ window.findNRooksSolution = function(n) {
             }
 
             var newBoard = new Board(newRows);
-            newBoard.togglePiece(remainingMoves[keys][0],remainingMoves[keys][1]);
+            newBoard.togglePiece(currentRow,movesLeft[keys]);
+
+            var stringBoard = JSON.stringify(newBoard.rows());
             //make a copy possible moves
               //remove the toggle, and any new interaction issues from the copy
               //and pass te copy down            
-            if(!(newBoard.hasAnyRooksConflicts())){
-              delete remainingMoves[keys]
+            if(!(newBoard.hasAnyRooksConflicts()) && !boardsSoFar[stringBoard]){
+              boardsSoFar[stringBoard] = true;
+              //delete remainingMoves[keys]
               
-              generateBoards(newBoard, remainingRooks-1, remainingMoves);
-            }//else{delete remainingMoves[keys];}
+              generateBoards(newBoard, remainingRooks-1, movesLeft);
+            }else{delete movesLeft[keys];}
           }
         }
       }
@@ -71,25 +75,180 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solution = undefined; //fixme
+  var counter = 0;
+  var board = new Board({n: n});
+  var rooks = n;
+  //var boardsSoFar = {}
+  //this.togglePiece(rowI, colI)
+  var possibleMoves = {};
+  for (var column = 0; column < n; column++) {
+    possibleMoves[column] = column;
+  }
+  
+  // for(0..<n for rows)
+  //   for(0..<n for col)
+  //     possible moves[]
+    var generateBoards = function(board, remainingRooks, possibleMoves){
+      var currentRow = n - remainingRooks
+      var movesLeft = _.extend({},possibleMoves);
 
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  return solutionCount;
+      if(remainingRooks === 0) {
+        //no check yet for whether board already in solutions
+        counter++;
+      }else{
+        for (var keys in movesLeft) {
+          if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
+
+            var newRows = [];
+            var rows = board.rows();
+            for(var subI =0; subI < rows.length; subI++){
+              var newEntry = rows[subI].slice();
+              newRows.push(newEntry);
+            }
+
+            var newBoard = new Board(newRows);
+            newBoard.togglePiece(currentRow,movesLeft[keys]);
+
+            //var stringBoard = JSON.stringify(newBoard.rows());
+            //make a copy possible moves
+              //remove the toggle, and any new interaction issues from the copy
+              //and pass te copy down
+
+            if(!(newBoard.hasColConflictAt(movesLeft[keys])) ){
+              //boardsSoFar[stringBoard] = true;
+              //delete remainingMoves[keys]
+              
+              generateBoards(newBoard, remainingRooks-1, movesLeft);
+            }else{
+              delete movesLeft[keys];
+            }
+          }
+        }
+      }
+    };
+
+    generateBoards(board, n, possibleMoves);
+
+  console.log('Single solution for ' + n + ' rooks:', counter);
+  return counter;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
+  var board = new Board({n: n});
+  var rooks = n;
+  var solutions = [];
+  var boardsSoFar = {}
+  //this.togglePiece(rowI, colI)
+  var possibleMoves = {};
+  for (var column = 0; column < n; column++) {
+    possibleMoves[column] = column;
+  }
+  
+  // for(0..<n for rows)
+  //   for(0..<n for col)
+  //     possible moves[]
+    var generateBoards = function(board, remainingQueens, possibleMoves){
+      var currentRow = n - remainingQueens
+      var movesLeft = _.extend({},possibleMoves);
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+      if(remainingQueens === 0) {
+        //no check yet for whether board already in solutions
+        solutions.push(board);
+      }else{
+        for (var keys in movesLeft) {
+          if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
+
+            var newRows = [];
+            var rows = board.rows();
+            for(var subI =0; subI < rows.length; subI++){
+              var newEntry = rows[subI].slice();
+              newRows.push(newEntry);
+            }
+
+            var newBoard = new Board(newRows);
+            newBoard.togglePiece(currentRow,movesLeft[keys]);
+
+            var stringBoard = JSON.stringify(newBoard.rows());
+            //make a copy possible moves
+              //remove the toggle, and any new interaction issues from the copy
+              //and pass te copy down            
+            if(!(newBoard.hasAnyQueensConflicts()) && !boardsSoFar[stringBoard]){
+              boardsSoFar[stringBoard] = true;
+              //delete remainingMoves[keys]
+              
+              generateBoards(newBoard, remainingQueens-1, movesLeft);
+            }
+          }
+        }
+      }
+    };
+
+    generateBoards(board, n, possibleMoves);
+
+  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solutions));
+  if(solutions.length){
+    return solutions[0].rows();
+    }
+    else {
+      return board.rows();
+    } 
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solution = undefined; //fixme
+  var board = new Board({n: n});
+  var rooks = n;
+  var counter = 0;
+  var boardsSoFar = {}
+  //this.togglePiece(rowI, colI)
+  var possibleMoves = {};
+  for (var column = 0; column < n; column++) {
+    possibleMoves[column] = column;
+  }
+  
+  // for(0..<n for rows)
+  //   for(0..<n for col)
+  //     possible moves[]
+    var generateBoards = function(board, remainingQueens, possibleMoves){
+      var currentRow = n - remainingQueens
+      var movesLeft = _.extend({},possibleMoves);
 
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  return solutionCount;
+      if(remainingQueens === 0) {
+        //no check yet for whether board already in solutions
+       counter++;
+      }else{
+        for (var keys in movesLeft) {
+          if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
+
+            var newRows = [];
+            var rows = board.rows();
+            for(var subI =0; subI < rows.length; subI++){
+              var newEntry = rows[subI].slice();
+              newRows.push(newEntry);
+            }
+
+            var newBoard = new Board(newRows);
+            newBoard.togglePiece(currentRow,movesLeft[keys]);
+
+            var stringBoard = JSON.stringify(newBoard.rows());
+            //make a copy possible moves
+              //remove the toggle, and any new interaction issues from the copy
+              //and pass te copy down            
+            if(!(newBoard.hasAnyQueensConflicts()) && !boardsSoFar[stringBoard]){
+              boardsSoFar[stringBoard] = true;
+              //delete remainingMoves[keys]
+              
+              generateBoards(newBoard, remainingQueens-1, movesLeft);
+            }
+          }
+        }
+      }
+    };
+
+    generateBoards(board, n, possibleMoves);
+
+  console.log('Number of solutions for ' + n + ' queens:', counter);
+  return counter;
 };
 
