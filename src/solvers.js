@@ -34,18 +34,18 @@ window.findNRooksSolution = function(n) {
   //   for(0..<n for col)
   //     possible moves[]
     var generateBoards = function(board, remainingRooks){
-      if(remainingRooks === 0) {
+      if(remainingRooks === 0  && !(board.hasAnyRooksConflicts())) {
         //no check yet for whether board already in solutions
         solutions.push(board);
       }
       //pass into solutions
 
       //if bad board dont recurse
-      if (!(board.hasAnyRooksConflicts())) {
+      if (remainingRooks >0 && !(board.hasAnyRooksConflicts())) {
         for (var i = 0; i < possibleMoves.length; i++) {
           if (board.valueAt(possibleMoves[i][0], possibleMoves[i][1]) === 0) {
             
-            console.table("in generateBoards",board.rows())
+            console.table("in generateBoards",board.rows());
             var newRows = [];
             var rows = board.rows();
             for(var subI =0; subI < rows.length; subI++){
@@ -61,7 +61,7 @@ window.findNRooksSolution = function(n) {
       }
     };
     
-    console.log(board.rows())
+    console.log(board.rows());
     generateBoards(board, n);
     //test with this.hasAnyRooksConflicts()
     //if not any conflicts
