@@ -19,10 +19,23 @@
     },
 
     rows: function() {
-      return _(_.range(this.get('n'))).map(function(rowIndex) {
-        return this.get(rowIndex);
-      }, this);
+      var results;
+      var self = this;
+
+      var makeRows = function(){
+        results = _(_.range(self.get('n'))).map(function(rowIndex) {
+          return self.get(rowIndex);
+        }, self);
+      }
+      if(results){
+        return results;
+      }else{
+        makeRows();
+        return results;
+      }
     },
+
+
 
     togglePiece: function(rowIndex, colIndex) {
       this.get(rowIndex)[colIndex] = + !this.get(rowIndex)[colIndex];
@@ -107,30 +120,12 @@
     // COLUMNS - run from top to bottom
     // --------------------------------------------------------------
     //
-    createColumns : function(matrix) {
-      var rows = matrix || this.rows();
-      var columns = [];
-
-      for(var i =0; i < rows.length; i++){
-        var column = [];
-
-        for(var subI = 0; subI < rows.length; subI++){
-          column.push(rows[subI][i]);
-        }
-
-        columns.push(column);
-      }
-      return columns;
-    },
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-
-
-      var columns = this.createColumns()
+      var rows = this.rows();
       var counter = 0;
-      var column = columns[colIndex];
-      for (var i = 0; i < column.length; i++) {
-        counter+= column[i];
+      for (var i = 0; i < rows.length; i++) {
+        counter += rows[i][colIndex];
       }
       return counter > 1; // fixme
     },
@@ -138,9 +133,9 @@
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
       var result = false;
-      var columns = this.createColumns()
+      var rows = this.rows();
 
-      for (var i = 0; i < columns.length; i++) {
+      for (var i = 0; i < rows.length; i++) {
         if (this.hasColConflictAt(i)) {
           result = true;
         }

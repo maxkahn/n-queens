@@ -23,56 +23,60 @@ window.findNRooksSolution = function(n) {
   var rooks = n;
   var solutions = [];
   //this.togglePiece(rowI, colI)
-  var possibleMoves = [];
+  var possibleMoves = {};
   for (var row = 0; row < n; row++) {
     for (var column = 0; column < n; column++) {
-      possibleMoves.push([row, column]);
+      possibleMoves[JSON.stringify([row, column])] = [row,column];
     }
   }
   
   // for(0..<n for rows)
   //   for(0..<n for col)
   //     possible moves[]
-    var generateBoards = function(board, remainingRooks){
-      if(remainingRooks === 0  && !(board.hasAnyRooksConflicts())) {
+    var generateBoards = function(board, remainingRooks, remainingMoves){
+      if(remainingRooks === 0) {
         //no check yet for whether board already in solutions
         solutions.push(board);
-      }
-      //pass into solutions
+      }else{
+        for (var keys in remainingMoves) {
+          if (board.valueAt(remainingMoves[keys][0], remainingMoves[keys][1]) === 0) {
 
-      //if bad board dont recurse
-      if (remainingRooks >0 && !(board.hasAnyRooksConflicts())) {
-        for (var i = 0; i < possibleMoves.length; i++) {
-          if (board.valueAt(possibleMoves[i][0], possibleMoves[i][1]) === 0) {
-            
-            console.table("in generateBoards",board.rows());
             var newRows = [];
             var rows = board.rows();
             for(var subI =0; subI < rows.length; subI++){
               var newEntry = rows[subI].slice();
               newRows.push(newEntry);
             }
-//            console.table(newRows)
+
             var newBoard = new Board(newRows);
-            newBoard.togglePiece(possibleMoves[i][0],possibleMoves[i][1]);
-            generateBoards(newBoard, remainingRooks-1);
+            newBoard.togglePiece(remainingMoves[keys][0],remainingMoves[keys][1]);
+            //remove any new conflicts and the new placement
+
+            //delete from remaining moves
+            var temp = [];
+
+            // for (var j = 0; j < board.rows().length; j++) {
+            //   if (!board.hasColConflictAt(j)){
+            //     for(var q = 0; q < board.rows().length; q++){
+            //       if(!board.hasRowConflictAt(q)){
+            //         temp.push([q,j]);
+            //       }
+            //     }
+            //   }
+            // }
+
+            if(!(newBoard.hasAnyRooksConflicts())){
+              generateBoards(newBoard, remainingRooks-1, remainingMoves);
+            }else{
+              delete remainingMoves[keys]
+            }
           }
         }
       }
     };
-    
-    console.log(board.rows());
-    generateBoards(board, n);
-    //test with this.hasAnyRooksConflicts()
-    //if not any conflicts
-      //iterate over possibleMoves
-        //check that space is blank
-          //if so, toggle it
-          //call recurisvly
-          //pass in that board, remainingRooks--, possibleMove
 
+    generateBoards(board, n, possibleMoves);
 
-  console.table(solutions[0].rows())
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solutions));
   return solutions[0].rows();
 };
