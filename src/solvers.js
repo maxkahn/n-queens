@@ -50,26 +50,14 @@ window.findNRooksSolution = function(n) {
 
             var newBoard = new Board(newRows);
             newBoard.togglePiece(remainingMoves[keys][0],remainingMoves[keys][1]);
-            //remove any new conflicts and the new placement
-
-            //delete from remaining moves
-            var temp = [];
-
-            // for (var j = 0; j < board.rows().length; j++) {
-            //   if (!board.hasColConflictAt(j)){
-            //     for(var q = 0; q < board.rows().length; q++){
-            //       if(!board.hasRowConflictAt(q)){
-            //         temp.push([q,j]);
-            //       }
-            //     }
-            //   }
-            // }
-
+            //make a copy possible moves
+              //remove the toggle, and any new interaction issues from the copy
+              //and pass te copy down            
             if(!(newBoard.hasAnyRooksConflicts())){
-              generateBoards(newBoard, remainingRooks-1, remainingMoves);
-            }else{
               delete remainingMoves[keys]
-            }
+              
+              generateBoards(newBoard, remainingRooks-1, remainingMoves);
+            }//else{delete remainingMoves[keys];}
           }
         }
       }
