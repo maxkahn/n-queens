@@ -149,35 +149,40 @@ window.findNQueensSolution = function(n) {
   //   for(0..<n for col)
   //     possible moves[]
     var generateBoards = function(board, remainingQueens, possibleMoves){
-      var currentRow = n - remainingQueens
-      var movesLeft = _.extend({},possibleMoves);
+      var currentRow = n - remainingQueens;
+      if(!solutions.length){
+        if(remainingQueens === 0) {
+          //no check yet for whether board already in solutions
+          solutions.push(board);
+        }else{
+          for (var keys in possibleMoves) {
+            if (board.valueAt(currentRow, possibleMoves[keys]) === 0) {
 
-      if(remainingQueens === 0) {
-        //no check yet for whether board already in solutions
-        solutions.push(board);
-      }else{
-        for (var keys in movesLeft) {
-          if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
+              var newRows = [];
+              var rows = board.rows();
+              for(var subI =0; subI < rows.length; subI++){
+                var newEntry = rows[subI].slice();
+                newRows.push(newEntry);
+              }
 
-            var newRows = [];
-            var rows = board.rows();
-            for(var subI =0; subI < rows.length; subI++){
-              var newEntry = rows[subI].slice();
-              newRows.push(newEntry);
-            }
+              var newBoard = new Board(newRows);
+              newBoard.togglePiece(currentRow,possibleMoves[keys]);
 
-            var newBoard = new Board(newRows);
-            newBoard.togglePiece(currentRow,movesLeft[keys]);
-
-            var stringBoard = JSON.stringify(newBoard.rows());
-            //make a copy possible moves
-              //remove the toggle, and any new interaction issues from the copy
-              //and pass te copy down            
-            if(!(newBoard.hasAnyQueensConflicts()) && !boardsSoFar[stringBoard]){
-              boardsSoFar[stringBoard] = true;
-              //delete remainingMoves[keys]
-              
-              generateBoards(newBoard, remainingQueens-1, movesLeft);
+              var stringBoard = JSON.stringify(newBoard.rows());
+              //make a copy possible moves
+                //remove the toggle, and any new interaction issues from the copy
+                //and pass te copy down
+                var majDiagIndex = newBoard._getFirstRowColumnIndexForMajorDiagonalOn(currentRow, possibleMoves[keys]);
+                var minDiagIndex = newBoard._getFirstRowColumnIndexForMinorDiagonalOn(currentRow, possibleMoves[keys]); 
+              if(!(newBoard.hasMinorDiagonalConflictAt(minDiagIndex)) 
+                && !(newBoard.hasMajorDiagonalConflictAt(majDiagIndex)) 
+                && !(newBoard.hasColConflictAt(possibleMoves[keys])) 
+                && !boardsSoFar[stringBoard]){
+                boardsSoFar[stringBoard] = true;
+                //delete remainingMoves[keys]
+                
+                generateBoards(newBoard, remainingQueens-1, possibleMoves);
+              }
             }
           }
         }
@@ -234,8 +239,13 @@ window.countNQueensSolutions = function(n) {
             var stringBoard = JSON.stringify(newBoard.rows());
             //make a copy possible moves
               //remove the toggle, and any new interaction issues from the copy
-              //and pass te copy down            
-            if(!(newBoard.hasAnyQueensConflicts()) && !boardsSoFar[stringBoard]){
+              //and pass te copy down 
+              var majDiagIndex = newBoard._getFirstRowColumnIndexForMajorDiagonalOn(currentRow, possibleMoves[keys]);
+              var minDiagIndex = newBoard._getFirstRowColumnIndexForMinorDiagonalOn(currentRow, possibleMoves[keys]); 
+            if(!(newBoard.hasMinorDiagonalConflictAt(minDiagIndex)) 
+              && !(newBoard.hasMajorDiagonalConflictAt(majDiagIndex)) 
+              && !(newBoard.hasColConflictAt(possibleMoves[keys])) 
+              && !boardsSoFar[stringBoard]){
               boardsSoFar[stringBoard] = true;
               //delete remainingMoves[keys]
               
