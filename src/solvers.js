@@ -90,13 +90,14 @@ window.countNRooksSolutions = function(n) {
   //     possible moves[]
     var generateBoards = function(board, remainingRooks, possibleMoves){
       var currentRow = n - remainingRooks
-      var movesLeft = _.extend({},possibleMoves);
+      
 
       if(remainingRooks === 0) {
         //no check yet for whether board already in solutions
         counter++;
       }else{
-        for (var keys in movesLeft) {
+        for (var keys in possibleMoves) {
+          var movesLeft = _.extend({},possibleMoves);
           if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
 
             var newRows = [];
@@ -117,10 +118,8 @@ window.countNRooksSolutions = function(n) {
             if(!(newBoard.hasColConflictAt(movesLeft[keys])) ){
               //boardsSoFar[stringBoard] = true;
               //delete remainingMoves[keys]
-              
-              generateBoards(newBoard, remainingRooks-1, movesLeft);
-            }else{
               delete movesLeft[keys];
+              generateBoards(newBoard, remainingRooks-1, movesLeft);
             }
           }
         }
@@ -157,7 +156,7 @@ window.findNQueensSolution = function(n) {
         }else{
           for (var keys in possibleMoves) {
             if (board.valueAt(currentRow, possibleMoves[keys]) === 0) {
-
+              var movesLeft = _.extend({}, possibleMoves);
               var newRows = [];
               var rows = board.rows();
               for(var subI =0; subI < rows.length; subI++){
@@ -180,8 +179,9 @@ window.findNQueensSolution = function(n) {
                 && !boardsSoFar[stringBoard]){
                 boardsSoFar[stringBoard] = true;
                 //delete remainingMoves[keys]
+                delete movesLeft[keys];
                 
-                generateBoards(newBoard, remainingQueens-1, possibleMoves);
+                generateBoards(newBoard, remainingQueens-1, movesLeft);
               }
             }
           }
@@ -217,13 +217,13 @@ window.countNQueensSolutions = function(n) {
   //     possible moves[]
     var generateBoards = function(board, remainingQueens, possibleMoves){
       var currentRow = n - remainingQueens
-      var movesLeft = _.extend({},possibleMoves);
 
       if(remainingQueens === 0) {
         //no check yet for whether board already in solutions
        counter++;
       }else{
-        for (var keys in movesLeft) {
+        for (var keys in possibleMoves) {
+          var movesLeft = _.extend({},possibleMoves);
           if (board.valueAt(currentRow, movesLeft[keys]) === 0) {
 
             var newRows = [];
@@ -247,6 +247,7 @@ window.countNQueensSolutions = function(n) {
               && !(newBoard.hasColConflictAt(possibleMoves[keys])) 
               && !boardsSoFar[stringBoard]){
               boardsSoFar[stringBoard] = true;
+              delete movesLeft[keys];
               //delete remainingMoves[keys]
               
               generateBoards(newBoard, remainingQueens-1, movesLeft);

@@ -125,6 +125,9 @@
       var rows = this.rows();
       var counter = 0;
       for (var i = 0; i < rows.length; i++) {
+        if(counter > 1){
+          return true
+        }
         counter += rows[i][colIndex];
       }
       return counter > 1; // fixme
